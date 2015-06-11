@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Converting raw file to mpeg4 format"
+ffmpeg -f h264 -i output.raw -vcodec copy output.mp4
+echo "Finished"
