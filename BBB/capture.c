@@ -7,8 +7,8 @@
  *
  *  This program can be used and distributed without restrictions.
  *
- *      This program is provided with the V4L2 API
- * see http://linuxtv.org/docs.php for more information
+ *  This program is provided with the V4L2 API
+ *  see http://linuxtv.org/docs.php for more information
  */
 
 #include <stdio.h>
@@ -29,6 +29,8 @@
 
 #include <linux/videodev2.h>
 
+#include <time.h>
+
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 
 enum io_method {
@@ -41,6 +43,8 @@ struct buffer {
         void   *start;
         size_t  length;
 };
+
+struct timespec timestamp;
 
 static char            *dev_name;
 static enum io_method   io = IO_METHOD_MMAP;
@@ -74,7 +78,9 @@ static void process_image(const void *p, int size)
                 fwrite(p, size, 1, stdout);
 
         fflush(stderr);
-        fprintf(stderr, ".");
+        //fprintf(stderr, ".");
+        clock_gettime(CLOCK_REALTIME, &timestamp);
+        fprintf(stderr,"%d%09ld\n",(int)timestamp.tv_sec,timestamp.tv_nsec);
         fflush(stdout);
 }
 
@@ -600,7 +606,7 @@ long_options[] = {
         { "userp",  no_argument,       NULL, 'u' },
         { "output", no_argument,       NULL, 'o' },
         { "format", no_argument,       NULL, 'f' },
-	{ "formatH264", no_argument,   NULL, 'F' },
+        { "formatH264", no_argument,   NULL, 'F' },
         { "count",  required_argument, NULL, 'c' },
         { 0, 0, 0, 0 }
 };
