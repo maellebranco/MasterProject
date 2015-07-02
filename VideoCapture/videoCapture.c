@@ -13,6 +13,7 @@
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
 #include <time.h>
+#include <libxml2/libxml/xmlwriter.h>
 // maybe not all needed but in case...
 
 #define CLEAR(x) memset(&(x),0,sizeof(x))
@@ -22,12 +23,11 @@ struct buffer
     void   *start;
     size_t  length;
 };
-
-struct timespec timestamp;
-
+struct buffer          *buffers;
+struct timespec         timestamp;
+struct timespec        *timestamps;
 static char            *dev_name;
 static int              fd = -1;
-struct buffer          *buffers;
 static unsigned int     n_buffers;
 static int              out_buf;
 static int              force_format = 0;
@@ -35,7 +35,7 @@ static int              frame_count = 100;
 
 static void errno_exit(const char *s)
 {
-    fprintf(stderr, "%s error %d, %s\n", s, errno, strerror(errno));
+    fprintf(stderr,"%s error %d, %s\n",s,errno,strerror(errno));
     exit(EXIT_FAILURE);
 }
 
@@ -55,9 +55,8 @@ static void process_image(const void *p, int size)
         fwrite(p, size, 1, stdout);
 
     fflush(stderr);
-    //fprintf(stderr, ".");
-    clock_gettime(CLOCK_REALTIME, &timestamp);
-    fprintf(stderr,"%d%09ld\n",(int)timestamp.tv_sec,timestamp.tv_nsec);
+    fprintf(stderr, ".");
+
     fflush(stdout);
 }
 
@@ -103,6 +102,8 @@ static void mainloop(void)
     if(frame_count == 0) loopIsInfinite = 1; // infinite loop
     count = frame_count;
 
+    timestamps = calloc(frame_count+1,sizeof(*timestamps));
+
     while((count-- > 0) || loopIsInfinite)
     {
         for(;;)
@@ -132,8 +133,10 @@ static void mainloop(void)
                 exit(EXIT_FAILURE);
             }
 
+            clock_gettime(CLOCK_REALTIME, &timestamp);
+            //fprintf(stderr,"%d%09ld\n",(int)timestamp.tv_sec,timestamp.tv_nsec);
+            timestamps[frame_count-count-1] = timestamp;
             if(read_frame()) break;
-            /* EAGAIN - continue select loop. */
         }
     }
 }
@@ -378,6 +381,26 @@ static void open_device(void)
     }
 }
 
+static void write_xml()
+{
+    xmlTextWriterPtr writer = xmlNewTextWriterFilename("video.txt",0);
+    xmlTextWriterStartDocument(writer,NULL,"UTF-8",NULL);
+    xmlTextWriterStartElement(writer,(xmlChar*)"timestamps");
+
+    unsigned int i;
+    for(i=0; i<frame_count; ++i)
+    {
+        xmlTextWriterStartElement(writer,(xmlChar*)"timestamp");
+        xmlTextWriterWriteFormatAttribute(writer,(xmlChar*)"s","%ld",timestamps[i].tv_sec);
+        xmlTextWriterWriteFormatAttribute(writer,(xmlChar*)"ns","%09ld",timestamps[i].tv_nsec);
+        xmlTextWriterEndElement(writer);
+    }
+
+    xmlTextWriterEndDocument(writer);
+    xmlFreeTextWriter(writer);
+
+}
+
 static void usage(FILE *fp, int argc, char **argv)
 {
     fprintf(fp,
@@ -460,6 +483,7 @@ int main(int argc, char **argv)
     stop_capturing();
     uninit_device();
     close_device();
+    write_xml();
     fprintf(stderr,"\n");
 
     return 0;

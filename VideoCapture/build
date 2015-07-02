@@ -1,4 +1,4 @@
 #!/bin/bash
 echo "Building the video capture program"
-gcc -O2 -Wall -lrt videoCapture.c -o videoCapture
+gcc -O2 -Wall -lrt `xml2-config --cflags --libs` videoCapture.c -o videoCapture
 echo "Finished"
