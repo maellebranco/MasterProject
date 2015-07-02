@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Building SensorAcquisition"
+g++ `xml2-config --cflags --libs` -lrt main.cpp mpu6050.cpp -o SensorAcquisition
