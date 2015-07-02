@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Converting raw file to avi format"
+ffmpeg -f h264 -i output.raw -vcodec copy output.avi
+echo "Finished"
