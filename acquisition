@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "Stating video and sensor data acquisition"
+./SensorAcquisition/SensorAcquisition 500 &
+sleep 1
+./VideoCapture/videoCapture -F -o > output.raw
+echo "Finished"
