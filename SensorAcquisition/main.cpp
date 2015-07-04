@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     sensor.offsetEstimation(125); //    about 1s
 
-    xmlTextWriterPtr writer = xmlNewTextWriterFilename("test.txt", 0); // create a new XmlWriter, with no compression
+    xmlTextWriterPtr writer = xmlNewTextWriterFilename("sensor.txt", 0); // create a new XmlWriter, with no compression
     if(writer == NULL)
     {
         printf("Error creating the xml writer\n");

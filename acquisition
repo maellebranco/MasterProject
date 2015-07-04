@@ -1,6 +1,19 @@
 #!/bin/bash
+if [ $# -eq 2 ];
+then
 echo "Stating video and sensor data acquisition"
-./SensorAcquisition/SensorAcquisition 500 &
+let nb=5*$2
+./SensorAcquisition/SensorAcquisition $nb  &
 sleep 1
-./VideoCapture/videoCapture -F -o > output.raw
+./VideoCapture/videoCapture -F -c $2 -o > output.raw
+echo "Converting files"
+./VideoCapture/raw2avi
+rm output.raw
+mkdir $1
+mv output.avi $1/$1.avi
+mv sensor.txt $1/
+mv video.txt  $1/
 echo "Finished"
+else
+echo "	Usage: ./acquisition videoName sampleNb"
+fi
