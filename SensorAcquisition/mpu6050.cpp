@@ -178,7 +178,7 @@ short MPU6050::readAccelerationX()
 {
     this->registers = this->readRegisters(2,REG_ACCEL_XOUT);
     short acc = (((short)registers[0])<<8) | registers[1];
-    acc = ~acc + 1; // 2's complement
+    //acc = ~acc + 1; // 2's complement
     return acc;
 
 }
@@ -187,7 +187,7 @@ short MPU6050::readAccelerationY()
 {
     this->registers = this->readRegisters(2,REG_ACCEL_YOUT);
     short acc = (((short)registers[0])<<8) | registers[1];
-    acc = ~acc + 1; // 2's complement
+    //acc = ~acc + 1; // 2's complement
     return acc;
 
 }
@@ -196,7 +196,7 @@ short MPU6050::readAccelerationZ()
 {
     this->registers = this->readRegisters(2,REG_ACCEL_ZOUT);
     short acc = (((short)registers[0])<<8) | registers[1];
-    acc = ~acc + 1; // 2's complement
+    //acc = ~acc + 1; // 2's complement
     return acc;
 
 }
@@ -205,7 +205,7 @@ short MPU6050::readAngularRateX()
 {
     this->registers = this->readRegisters(2,REG_GYRO_XOUT);
     short ang = (((short)registers[0])<<8) | registers[1];
-    ang = ~ang + 1; // 2's complement
+    //ang = ~ang + 1; // 2's complement
     return ang;
 }
 
@@ -213,7 +213,7 @@ short MPU6050::readAngularRateY()
 {
     this->registers = this->readRegisters(2,REG_GYRO_YOUT);
     short ang = (((short)registers[0])<<8) | registers[1];
-    ang = ~ang + 1; // 2's complement
+    //ang = ~ang + 1; // 2's complement
     return ang;
 }
 
@@ -221,7 +221,7 @@ short MPU6050::readAngularRateZ()
 {
     this->registers = this->readRegisters(2,REG_GYRO_ZOUT);
     short ang = (((short)registers[0])<<8) | registers[1];
-    ang = ~ang + 1; // 2's complement
+    //ang = ~ang + 1; // 2's complement
     return ang;
 }
 
@@ -231,9 +231,9 @@ int MPU6050::readAccelerations()
     this->accelerationX = (((short)registers[0])<<8) | registers[1];
     this->accelerationY = (((short)registers[2])<<8) | registers[3];
     this->accelerationZ = (((short)registers[4])<<8) | registers[5];
-    this-> accelerationX = ~accelerationX + 1; // 2's complement
-    this->accelerationY = ~accelerationY + 1;
-    this->accelerationZ = ~accelerationZ + 1;
+    //this-> accelerationX = ~accelerationX + 1; // 2's complement
+    //this->accelerationY = ~accelerationY + 1;
+    //this->accelerationZ = ~accelerationZ + 1;
     if(!this->testConnection())
     {
         cout << "MPU6050: Failure Condition - Sensor ID not Verified" << endl;
@@ -248,9 +248,9 @@ int MPU6050::readAngularRates()
     this->angularRateX = (((short)registers[0])<<8) | registers[1];
     this->angularRateY = (((short)registers[2])<<8) | registers[3];
     this->angularRateZ = (((short)registers[4])<<8) | registers[5];
-    this->angularRateX = ~angularRateX + 1; // 2's complement
-    this->angularRateY = ~angularRateY + 1;
-    this->angularRateZ = ~angularRateZ + 1;
+    //this->angularRateX = ~angularRateX + 1; // 2's complement
+    //this->angularRateY = ~angularRateY + 1;
+    //this->angularRateZ = ~angularRateZ + 1;
     if(!this->testConnection())
     {
         cout << "MPU6050: Failure Condition - Sensor ID not Verified" << endl;
@@ -282,12 +282,12 @@ int MPU6050::readAll()
     this->angularRateX = (((short)registers[8])<<8) | registers[9];
     this->angularRateY = (((short)registers[10])<<8) | registers[11];
     this->angularRateZ = (((short)registers[12])<<8) | registers[13];
-    this-> accelerationX = ~accelerationX + 1; // 2's complement
-    this->accelerationY = ~accelerationY + 1;
-    this->accelerationZ = ~accelerationZ + 1;
-    this->angularRateX = ~angularRateX + 1;
-    this->angularRateY = ~angularRateY + 1;
-    this->angularRateZ = ~angularRateZ + 1;
+    //this-> accelerationX = ~accelerationX + 1; // 2's complement
+    //this->accelerationY = ~accelerationY + 1;
+    //this->accelerationZ = ~accelerationZ + 1;
+    //this->angularRateX = ~angularRateX + 1;
+    //this->angularRateY = ~angularRateY + 1;
+    //this->angularRateZ = ~angularRateZ + 1;
     this->temperatureCelcius = temperature/340 + 36.53;
     if(!this->testConnection())
     {

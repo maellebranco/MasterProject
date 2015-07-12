@@ -2,7 +2,8 @@
 if [ $# -eq 2 ];
 then
 echo "Stating video and sensor data acquisition"
-let nb=4*$2
+let nb=4*$2+$2/5
+echo $nb
 ./SensorAcquisition/SensorAcquisition $nb  &
 sleep 1
 ./VideoCapture/videoCapture -F -c $2 -o > output.raw
