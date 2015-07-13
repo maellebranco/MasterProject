@@ -133,10 +133,10 @@ void MPU6050::initialize()
     this->writeRegister(REG_GYRO_CONFIG,PLUSMINUS_250_DPS);
     this->rangeGyro = PLUSMINUS_250_DPS;
     this->sensitivityGyro = FS_250;
-    // set accelerometer full range to +/- 4g (bits [4:3]) and High Pass Filter disabled (bits [2:0])
-    this->writeRegister(REG_ACCEL_CONFIG,PLUSMINUS_4_G);
-    this->rangeAcc = PLUSMINUS_4_G;
-    this->sensitivityAcc = FS_4G;
+    // set accelerometer full range to +/- 2g (bits [4:3]) and High Pass Filter disabled (bits [2:0])
+    this->writeRegister(REG_ACCEL_CONFIG,PLUSMINUS_2_G);
+    this->rangeAcc = PLUSMINUS_2_G;
+    this->sensitivityAcc = FS_2G;
     usleep(30*1000); // wait 30ms for sensors start-up
 }
 
