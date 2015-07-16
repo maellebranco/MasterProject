@@ -5,7 +5,8 @@ echo "Stating video and sensor data acquisition"
 let nb=4*$2+$2/5
 echo $nb
 ./SensorAcquisition/SensorAcquisition $nb  &
-sleep 1
+sleep 1.2
+#./VideoCapture/echoEpoch &
 ./VideoCapture/videoCapture -F -c $2 -o > output.raw
 echo "Converting files"
 ./VideoCapture/raw2avi
