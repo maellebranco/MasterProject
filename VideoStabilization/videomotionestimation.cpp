@@ -15,29 +15,29 @@
 using namespace cv;
 using namespace std;
 
-// for duplicates removing algorithms
-bool videoMotionEstimation::point2fLessOperatorX(Point2f pt1,Point2f pt2)
+// for duplicates removing algorithms (in calcTrajectoriesKLT)
+bool VideoMotionEstimation::point2fLessOperatorX(Point2f pt1,Point2f pt2)
 {
     if(pt1.x!=pt2.x)
         return (pt1.x<pt2.x);
     else
         return (pt1.y<pt2.y);
 }
-bool videoMotionEstimation::point2fLessOperatorY(Point2f pt1,Point2f pt2)
+bool VideoMotionEstimation::point2fLessOperatorY(Point2f pt1,Point2f pt2)
 {
     if(pt1.y!=pt2.y)
         return (pt1.y<pt2.y);
     else
         return (pt1.x<pt2.x);
 }
-bool videoMotionEstimation::point2fDuplicate(Point2f pt1,Point2f pt2)
+bool VideoMotionEstimation::point2fDuplicate(Point2f pt1,Point2f pt2)
 {
     int d = 10;
     return ((-d<(pt1.x-pt2.x) && (pt1.x-pt2.x)<d) && (-d<(pt1.y-pt2.y) && (pt1.y-pt2.y)<d));
 }
 
 // read the video
-int videoMotionEstimation::readingVideo(string videoPath)
+int VideoMotionEstimation::readingVideo(string videoPath)
 {
     VideoCapture cap(videoPath);    // open the video file for reading
 
@@ -66,7 +66,7 @@ int videoMotionEstimation::readingVideo(string videoPath)
         }
         namedWindow("MyVideo",WINDOW_NORMAL);
         imshow("MyVideo", frame);   // show the frame in "MyVideo" window
-        if(waitKey((int)(1000/fps)) == 27)  // wait between frames, if 'esc' key is pressed, break loop
+        if(waitKey((int)100*(1000/fps)) == 27)  // wait between frames, if 'esc' key is pressed, break loop
         {
             cout << "Visualization ended by user" << endl;
             break;
@@ -77,7 +77,7 @@ int videoMotionEstimation::readingVideo(string videoPath)
 }
 
 // calculate trajectories using SIFT descriptors and Brute Force matching
-int videoMotionEstimation::calcTrajectoriesSIFT(vector<Trajectory> &trajectories, int &nbFrames, string videoPath)
+int VideoMotionEstimation::calcTrajectoriesSIFT(vector<Trajectory> &trajectories, int &nbFrames, string videoPath)
 {
     VideoCapture cap(videoPath);    // open the video file for reading
 
@@ -136,6 +136,7 @@ int videoMotionEstimation::calcTrajectoriesSIFT(vector<Trajectory> &trajectories
         //drawMatches(frame1,keypoint1,frame2,keypoint2,matches,frameOut);
 
         // better flow visualization
+        cout << "Current frame: " << frameNb+1 << endl;
         frame2.copyTo(frameOut);
         for(vector<DMatch>::const_iterator it_match=matches.begin(); it_match!=matches.end(); ++it_match)
         {
@@ -193,7 +194,7 @@ int videoMotionEstimation::calcTrajectoriesSIFT(vector<Trajectory> &trajectories
             currentTrajectories=newCurrentTrajectories; // update the map reference to current trajectories
         }
 
-        cout << "Current frame: " << ++frameNb << endl;
+        ++frameNb;
         frame2.copyTo(frame1);
         keypoint1 = keypoint2;
         descriptor1 = descriptor2;
@@ -204,7 +205,7 @@ int videoMotionEstimation::calcTrajectoriesSIFT(vector<Trajectory> &trajectories
 }
 
 // calculate trajectories using KLT sparse optical flow (with Harris corners)
-int videoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories, int &nbFrames, string videoPath, int maxInitialCorners=2000, int maxNewCorners=500)
+int VideoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories, int &nbFrames, string videoPath, int maxInitialCorners=2000, int maxNewCorners=500)
 {
     VideoCapture cap(videoPath);    // open the video file for reading
 
@@ -239,6 +240,8 @@ int videoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories,
         }
 
         if(!cap.read(frame2)) break;    // read next frame
+        cout << "Current frame: " << frameNb+1 << endl;
+
         cvtColor(frame2,gray2,COLOR_BGR2GRAY);  // convert it to greyscale
         calcOpticalFlowPyrLK(gray1,gray2,previousPoints,nextPoints,status,errors);  // calculate sparse optical flow
         //cout << nextPoints << endl;
@@ -260,7 +263,7 @@ int videoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories,
         }
         namedWindow("Matches",WINDOW_NORMAL);
         imshow("Matches",frameOut);
-        if(waitKey(10*(int)(1000/fps)) == 27) break;
+        if(waitKey((int)(1000/fps)) == 27) break;
         cout << valid << " valid matches" << endl;
 
         goodFeaturesToTrack(gray2,newPoints,maxNewCorners,0.01,5,noArray(),3,true,0.04);    // detect new strong corners (Harris)
@@ -302,7 +305,7 @@ int videoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories,
         cout << previousPoints.size() << " tracked points" <<endl;
         //cout << previousPoints << endl;
 
-        cout << "Current frame: " << ++frameNb << endl;
+        ++frameNb;
         frame2.copyTo(frame1);
         gray2.copyTo(gray1);
     }
@@ -311,8 +314,9 @@ int videoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories,
     return 0;
 }
 
-// calculate global motions (affine transformation or homography) using RANSAC and with trajectory ponderation
-void videoMotionEstimation::calcGlobalMotions(vector<Mat> &globalMotions, vector<Trajectory> &trajectories, int nbFrames, bool discardUniqueMatches=true, bool safePoints=true, bool homography=false)
+// calculate global motions (translation, affine transformation and similarity) using RANSAC and with trajectory ponderation
+void VideoMotionEstimation::calcGlobalMotions(vector<Mat> &globalMotions, videostab::MotionModel model, vector<Trajectory> &trajectories, int nbFrames,
+                                              bool discardUniqueMatches, bool safePoints)
 {
     cout << trajectories.size() << " trajectories" << endl;
     //for(vector<Trajectory>::const_iterator it=trajectories.begin(); it!=trajectories.end(); ++it) it->showTrajectory();
@@ -321,7 +325,11 @@ void videoMotionEstimation::calcGlobalMotions(vector<Mat> &globalMotions, vector
     {
         for(vector<Trajectory>::iterator it=trajectories.begin(); it!=trajectories.end();)
         {
-            if(it->getSize()<3) trajectories.erase(it);
+            if(it->getSize()<3)
+            {
+                swap((*it),trajectories.back()); // to avoid shift of all next elements using trajectories.erase(it)
+                trajectories.pop_back();
+            }
             else ++it;
         }
         cout << trajectories.size() << " remaining trajectories" << endl;
@@ -357,8 +365,9 @@ void videoMotionEstimation::calcGlobalMotions(vector<Mat> &globalMotions, vector
 
         for(map<int,int>::const_iterator it=weights.begin(); it!=weights.end(); ++it)   // for each corresponding trajectory
         {
-            Point2f pt1 = trajectories.at(it->first).getPoint(i-1);
-            Point2f pt2 = trajectories.at(it->first).getPoint(i);
+            // origin from top-left corner to frame center (960,540)
+            Point2f pt1 = trajectories.at(it->first).getPoint(i-1) + Point2f(-960,540);
+            Point2f pt2 = trajectories.at(it->first).getPoint(i) + Point2f(-960,540);
             //cout << pt1 << " " << pt2 << " (" << it->second << ")" << endl;
 
             for(int w=0; w<(it->second); ++w)   // weight applied by duplication of points
@@ -368,13 +377,100 @@ void videoMotionEstimation::calcGlobalMotions(vector<Mat> &globalMotions, vector
             }
         }
 
-        if(homography)  // homography or affine transformation
-            globalMotion = findHomography(points1,points2,FM_RANSAC);    // estimate the global motion using RANSAC
-        else
-            globalMotion = videostab::estimateGlobalMotionRansac(points1,points2,videostab::MM_SIMILARITY,videostab::RansacParams::default2dMotion(videostab::MM_SIMILARITY),0,0);
-            //globalMotion = videostab::estimateGlobalMotionLeastSquares(points1,points2,videostab::MM_AFFINE,0);   // using Least Squares (less accurate)
+        // estimate the global motions using RANSAC
+        globalMotion = videostab::estimateGlobalMotionRansac(points1,points2,model,videostab::RansacParams::default2dMotion(model),0,0);
+//      affine = videostab::estimateGlobalMotionLeastSquares(points1,points2,videostab::MM_AFFINE,0);   // using Least Squares (less accurate)
+//      homography = findHomography(points1,points2,FM_RANSAC);   // too sensitive
 
-        cout << "Frame " << i << endl << globalMotion << endl;
-        globalMotions.push_back(globalMotion);  // add the global motion between the two frames to the vector of global motions
+        //cout << "Frame " << i << endl << " Motion:" << endl << globalMotion << endl;
+
+        globalMotions.push_back(globalMotion);  // add the global motion between the two frames to the vectors of global motions
+    }
+}
+
+// convert transformation matrices to vectors
+void VideoMotionEstimation::convertMatrixData(int nbFrames, vector<long int> timestamps, vector<Mat> translations,
+                                              vector<double> &scaledTimestamps, vector<double> &translationsX, vector<double> &translationsY)
+{
+    long int number = timestamps.back()-timestamps.front();
+    int digits = 0; do { number /= 10; digits++; } while (number != 0);
+    scaledTimestamps.push_back((double)((timestamps.at(0))%(long int)pow(10,digits+1))/1000000000);
+    translationsX.push_back(0.0);
+    translationsY.push_back(0.0);
+    //rotationsRoll.push_back(0.0);
+    for(int i=1; i<nbFrames; ++i)
+    {
+        scaledTimestamps.push_back((double)((timestamps.at(i))%(long int)pow(10,digits+1))/1000000000);
+        translationsX.push_back(translations.at(i-1).at<float>(Point(2,0)));
+        translationsY.push_back(translations.at(i-1).at<float>(Point(2,1)));
+        //rotationsRoll.push_back(-(180/M_PI)*asin(rigids.at(i-1).at<float>(Point(0,1))));    // reverse rotation
+    }
+}
+
+// convert Affine matrices to vectors
+void VideoMotionEstimation::convertAffineData(int nbFrames, vector<Mat> affines, vector<double> &affinesA, vector<double> &affinesB,
+                                              vector<double> &affinesC, vector<double> &affinesD, vector<double> &affinesTx, vector<double> &affinesTy,
+                                              vector<double> &affinesSkew, vector<double> &affinesRatio)
+{
+    affinesA.push_back(0.0);
+    affinesB.push_back(0.0);
+    affinesC.push_back(0.0);
+    affinesD.push_back(0.0);
+    affinesTx.push_back(0.0);
+    affinesTy.push_back(0.0);
+    affinesSkew.push_back(0.0);
+    affinesRatio.push_back(0.0);
+    for(int i=1; i<nbFrames; ++i)
+    {
+        affinesA.push_back(affines.at(i-1).at<float>(Point(0,0))-1);
+        affinesB.push_back(affines.at(i-1).at<float>(Point(1,0)));
+        affinesC.push_back(affines.at(i-1).at<float>(Point(0,1)));
+        affinesD.push_back(affines.at(i-1).at<float>(Point(1,1))-1);
+        affinesTx.push_back(affines.at(i-1).at<float>(Point(2,0)));
+        affinesTy.push_back(affines.at(i-1).at<float>(Point(2,1)));
+        affinesSkew.push_back(affines.at(i-1).at<float>(Point(1,0))+affines.at(i-1).at<float>(Point(0,1)));     // skewY ~= 0
+        affinesRatio.push_back(affines.at(i-1).at<float>(Point(1,1))-affines.at(i-1).at<float>(Point(0,0)));    // scaleX ~= 1
+    }
+}
+
+
+// limit the skew and ratio transformations
+void VideoMotionEstimation::limitationFilter(vector<double> &affinesTx, vector<double> &affinesTy, vector<double> &affinesSkew, vector<double> &affinesRatio)
+{
+    float skewLimit = 0.05;
+    float ratioLimit = 0.1;
+    for(unsigned int i=0; i<affinesSkew.size(); ++i)
+    {
+        if(affinesSkew.at(i)>skewLimit)
+        {
+            affinesTx.at(i) = affinesTx.at(i)*skewLimit/affinesSkew.at(i);
+            affinesSkew.at(i) = skewLimit;
+        }
+        else if(affinesSkew.at(i)<-skewLimit)
+        {
+            affinesTx.at(i) = -affinesTx.at(i)*skewLimit/affinesSkew.at(i);
+            affinesSkew.at(i) = -skewLimit;
+        }
+        else
+        {
+            affinesTx.at(i) = affinesTx.at(i);
+            affinesSkew.at(i) = affinesSkew.at(i);
+        }
+
+        if(affinesRatio.at(i)>ratioLimit)
+        {
+            affinesTy.at(i) = affinesTy.at(i)*ratioLimit/affinesRatio.at(i);
+            affinesRatio.at(i) = ratioLimit;
+        }
+        else if(affinesRatio.at(i)<-ratioLimit)
+        {
+            affinesTy.at(i) = -affinesTy.at(i)*ratioLimit/affinesRatio.at(i);
+            affinesRatio.at(i) = -ratioLimit;
+        }
+        else
+        {
+            affinesTy.at(i) = affinesTy.at(i);
+            affinesRatio.at(i) = affinesRatio.at(i);
+        }
     }
 }
