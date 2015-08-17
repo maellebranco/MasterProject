@@ -130,7 +130,7 @@ void Fusion::noMotionDetection(vector<double> translationsX, vector<double> tran
                               vector<double> &corrTranslationsX, vector<double> &corrTranslationsY)
 {
     float limit=0.5;
-    for(unsigned int i=0; i<translationsX.size(); ++i)
+    for(unsigned int i=0; i<syncAngularRatesX.size(); ++i)
     {
         if(syncAngularRatesZ.at(i)>limit || syncAngularRatesZ.at(i)<-limit)
             corrTranslationsX.push_back(translationsX.at(i));
@@ -152,7 +152,7 @@ void Fusion::noMotionDetection(vector<double> affinesA, vector<double> affinesB,
                                vector<double> &corrAffinesTx, vector<double> &corrAffinesTy, vector<double> &corrAffinesSkew, vector<double> &corrAffinesRatio)
 {
     float limit=2;
-    for(unsigned int i=0; i<affinesA.size(); ++i)
+    for(unsigned int i=0; i<syncAngularRatesX.size(); ++i)
     {
         if(syncAngularRatesX.at(i)>limit || syncAngularRatesX.at(i)<-limit
                 || syncAngularRatesY.at(i)>limit || syncAngularRatesY.at(i)<-limit

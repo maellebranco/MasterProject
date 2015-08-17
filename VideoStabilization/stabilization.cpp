@@ -183,7 +183,7 @@ void Stabilization::cropSize(vector<double> unwantedTransX, vector<double> unwan
 // wrap optimal camera path to video and write stabilized video file
 int Stabilization::stabilizeVideo(string folderName, string videoName, string stableVideoName, int nbFrames, vector<Mat> unwantedMotions, int cropX, int cropY)
 {
-    VideoCapture cap("/home/maelle/Desktop/Samples/"+folderName+"/"+videoName+".avi");  // open the original video
+    VideoCapture cap("/home/maelle/Desktop/Samples/Dynamic/"+folderName+"/"+videoName+".avi");  // open the original video
 
     if (!cap.isOpened())    // if not success, exit
     {
@@ -196,7 +196,7 @@ int Stabilization::stabilizeVideo(string folderName, string videoName, string st
     int fourcc = VideoWriter::fourcc('H','2','6','4');  // set codec code
     //cout << "Video parameters: " << frameSize << ", codec:" << fourcc << ", fps:" << fps << endl;
 
-    VideoWriter videoWriter("/home/maelle/Desktop/Samples/"+folderName+"/"+stableVideoName+".avi",fourcc,fps,frameSize,true);  // initialize the VideoWriter object
+    VideoWriter videoWriter("/home/maelle/Desktop/Samples/Dynamic/"+folderName+"/"+stableVideoName+".avi",fourcc,fps,frameSize,true);  // initialize the VideoWriter object
 
     if (!videoWriter.isOpened())    // if not success, exit
     {
@@ -212,7 +212,7 @@ int Stabilization::stabilizeVideo(string folderName, string videoName, string st
         resize(frame,frame,frameSize,0,0,CV_INTER_CUBIC);
         videoWriter.write(frame);
     }
-    for(int i=0; i<nbFrames-1; ++i)   // for each frame (except first)
+    for(int i=0; i<nbFrames-1 && i<unwantedMotions.size(); ++i)   // for each frame (except first)
     {
         if(!cap.read(frame))    // read frame
         {

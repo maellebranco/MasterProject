@@ -243,6 +243,7 @@ int VideoMotionEstimation::calcTrajectoriesKLT(vector<Trajectory> &trajectories,
         cout << "Current frame: " << frameNb+1 << endl;
 
         cvtColor(frame2,gray2,COLOR_BGR2GRAY);  // convert it to greyscale
+        if(previousPoints.size()==0) previousPoints.push_back(Point2f(0,0));    // avoid crash if no features to track (white frame)
         calcOpticalFlowPyrLK(gray1,gray2,previousPoints,nextPoints,status,errors);  // calculate sparse optical flow
         //cout << nextPoints << endl;
 

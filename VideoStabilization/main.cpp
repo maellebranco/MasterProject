@@ -45,9 +45,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    string videoName = "test";
+    string videoName = "carTravellingHand3";
 
-    //VideoMotionEstimation::readingVideo("/home/maelle/Desktop/Samples/"+videoName+"/"+videoName+".avi");
+    //VideoMotionEstimation::readingVideo("/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+".avi");
 
 //*** First round
 
@@ -56,8 +56,8 @@ tic();
     vector<Trajectory> trajectories;
     int nbFrames;
 
-    VideoMotionEstimation::calcTrajectoriesKLT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/"+videoName+"/"+videoName+".avi",2000,500);
-    //calcTrajectoriesSIFT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/"+videoName+"/"+videoName+".avi");
+    VideoMotionEstimation::calcTrajectoriesKLT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+".avi",2000,500);
+    //calcTrajectoriesSIFT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+".avi");
 toc();
 
     // Compute global motions (only translations) between each pair of frames
@@ -70,7 +70,7 @@ toc();
     // Read video timestamps from xml file
 tic();
     vector<long int> videoTimestamps;
-    string videoFilePath = "/home/maelle/Desktop/Samples/"+videoName+"/video.txt";
+    string videoFilePath = "/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/video.txt";
 
     if(Fusion::videoTimestamps(videoFilePath.c_str(),videoTimestamps)<0)
         return -1;
@@ -83,7 +83,7 @@ toc();
 
     // Read the sensor data from xml file
 tic();
-    string filePath = "/home/maelle/Desktop/Samples/"+videoName+"/sensor.txt";
+    string filePath = "/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/sensor.txt";
     vector<long int> timestamps;
     vector<float> temperatures;
     float sensitivityAcc, sensitivityGyro;
@@ -522,7 +522,7 @@ tic();
     vector<Trajectory> trajectories2;
     int nbFrames2;
 
-    VideoMotionEstimation::calcTrajectoriesKLT(trajectories2,nbFrames2,"/home/maelle/Desktop/Samples/"+videoName+"/"+videoName+"_stable_F.avi",2000,500);
+    VideoMotionEstimation::calcTrajectoriesKLT(trajectories2,nbFrames2,"/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+"_stable_F.avi",2000,500);
 toc();
 
 tic();
