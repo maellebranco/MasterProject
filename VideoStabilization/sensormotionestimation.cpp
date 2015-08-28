@@ -31,7 +31,7 @@ int SensorMotionEstimation::readSensorData(const char* filePath,vector<long int>
             {
                 sensitivityAcc = atof((const char*)xmlTextReaderGetAttribute(reader, (const xmlChar*)"sensitivityAcc"));
                 sensitivityGyro = atof((const char*)xmlTextReaderGetAttribute(reader, (const xmlChar*)"sensitivityGyro"));
-            }
+            }         
             if(depth==1 && type==XML_READER_TYPE_ELEMENT)
             {
                 char time[18];
@@ -137,10 +137,6 @@ void SensorMotionEstimation::computeRollPitchYaw(vector<double> scaledTimestamps
         // compute roll and pitch from accelerometer (yaw not possible)
         rollAcc.push_back(atan(accelerationsY[i]/sqrt(accelerationsX[i]*accelerationsX[i]+accelerationsZ[i]*accelerationsZ[i]))*180/M_PI);
         pitchAcc.push_back(atan(-accelerationsX[i]/sqrt(accelerationsY[i]*accelerationsY[i]+accelerationsZ[i]*accelerationsZ[i]))*180/M_PI);
-//        rollAcc.push_back(atan(accelerationsY[i]/accelerationsZ[i])*180/M_PI);
-//        pitchAcc.push_back(atan(-accelerationsX[i]/sqrt(accelerationsY[i]*accelerationsY[i]+accelerationsZ[i]*accelerationsZ[i]))*180/M_PI);
-//        rollAcc.push_back(atan2(accelerationsY[i],accelerationsZ[i])*180/M_PI);
-//        pitchAcc.push_back(atan2(-accelerationsX[i],sqrt(accelerationsY[i]*accelerationsY[i]+accelerationsZ[i]*accelerationsZ[i]))*180/M_PI);
 
         // if acceleration magnitude near to gravity (accelerometer quite stable)
         float accMagnitude = sqrt(accelerationsX[i]*accelerationsX[i]+accelerationsY[i]*accelerationsY[i]+accelerationsZ[i]*accelerationsZ[i]);

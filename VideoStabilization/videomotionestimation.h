@@ -33,6 +33,9 @@ public:
     static void calcGlobalMotions(vector<Mat> &globalMotions, cv::videostab::MotionModel model, vector<Trajectory> &trajectories, int nbFrames,
                                   bool discardUniqueMatches=true, bool safePoints=true);
 
+    // convert transformation matrices to vectors (without timestamps ie fusion)
+    static void convertMatrixData(int nbFrames, vector<Mat> translations, vector<double> &translationsX, vector<double> &translationsY);
+
     // convert Translation matrices to vectors and scale timestamps
     static void convertMatrixData(int nbFrames, vector<long int> timestamps, vector<Mat> translations,
                                   vector<double> &scaledTimestamps, vector<double> &translationsX, vector<double> &translationsY);

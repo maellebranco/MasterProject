@@ -46,7 +46,7 @@ int VideoMotionEstimation::readingVideo(string videoPath)
         cout << "Cannot open the video file!" << endl;
         return -1;
     }
-
+    int i = 0;
     double fps = cap.get(CV_CAP_PROP_FPS);  // get the frames per seconds of the video
     cout << "Frame per seconds : " << fps << endl;
     int nbFrames = cap.get(CV_CAP_PROP_FRAME_COUNT);    // get approximate number of frammes of the video
@@ -64,9 +64,10 @@ int VideoMotionEstimation::readingVideo(string videoPath)
             else cout << "End of video file" << endl;
             break;
         }
+        cout << "Current frame: " << i++ << endl;
         namedWindow("MyVideo",WINDOW_NORMAL);
         imshow("MyVideo", frame);   // show the frame in "MyVideo" window
-        if(waitKey((int)100*(1000/fps)) == 27)  // wait between frames, if 'esc' key is pressed, break loop
+        if(waitKey((int)(1000/fps)) == 27)  // wait between frames, if 'esc' key is pressed, break loop
         {
             cout << "Visualization ended by user" << endl;
             break;
@@ -386,6 +387,18 @@ void VideoMotionEstimation::calcGlobalMotions(vector<Mat> &globalMotions, videos
         //cout << "Frame " << i << endl << " Motion:" << endl << globalMotion << endl;
 
         globalMotions.push_back(globalMotion);  // add the global motion between the two frames to the vectors of global motions
+    }
+}
+
+// convert transformation matrices to vectors (without timestamps ie fusion)
+void VideoMotionEstimation::convertMatrixData(int nbFrames, vector<Mat> translations, vector<double> &translationsX, vector<double> &translationsY)
+{
+    translationsX.push_back(0.0);
+    translationsY.push_back(0.0);
+    for(int i=1; i<nbFrames; ++i)
+    {
+        translationsX.push_back(translations.at(i-1).at<float>(Point(2,0)));
+        translationsY.push_back(translations.at(i-1).at<float>(Point(2,1)));
     }
 }
 

@@ -45,9 +45,9 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    string videoName = "carTravellingHand3";
+    string videoName = "static";
 
-    //VideoMotionEstimation::readingVideo("/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+".avi");
+    //VideoMotionEstimation::readingVideo("/home/maelle/Desktop/Samples/Static/"+videoName+"/"+videoName+".avi");
 
 //*** First round
 
@@ -56,8 +56,8 @@ tic();
     vector<Trajectory> trajectories;
     int nbFrames;
 
-    VideoMotionEstimation::calcTrajectoriesKLT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+".avi",2000,500);
-    //calcTrajectoriesSIFT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+".avi");
+    VideoMotionEstimation::calcTrajectoriesKLT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/Static/"+videoName+"/"+videoName+".avi",2000,500);
+    //VideoMotionEstimation::calcTrajectoriesSIFT(trajectories,nbFrames,"/home/maelle/Desktop/Samples/Static/"+videoName+"/"+videoName+".avi");
 toc();
 
     // Compute global motions (only translations) between each pair of frames
@@ -70,20 +70,18 @@ toc();
     // Read video timestamps from xml file
 tic();
     vector<long int> videoTimestamps;
-    string videoFilePath = "/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/video.txt";
+    string videoFilePath = "/home/maelle/Desktop/Samples/Static/"+videoName+"/video.txt";
 
     if(Fusion::videoTimestamps(videoFilePath.c_str(),videoTimestamps)<0)
         return -1;
 
     // Convert the global motions matrices in vectors (and scale the timestamps for plots)
     vector<double> scaledVideoTimestamps,translationsX,translationsY;
-
     VideoMotionEstimation::convertMatrixData(nbFrames,videoTimestamps,translations,scaledVideoTimestamps,translationsX,translationsY);
 toc();
-
     // Read the sensor data from xml file
 tic();
-    string filePath = "/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/sensor.txt";
+    string filePath = "/home/maelle/Desktop/Samples/Static/"+videoName+"/sensor.txt";
     vector<long int> timestamps;
     vector<float> temperatures;
     float sensitivityAcc, sensitivityGyro;
@@ -94,7 +92,6 @@ tic();
                                               rawAccelerationsX,rawAccelerationsY,rawAccelerationsZ,rawAngularRatesX,rawAngularRatesY,rawAngularRatesZ)<0)
         return -1;
 toc();
-
     // Convert the sensor raw data into usable data vectors
 tic();
     vector<double> scaledTimestamps;
@@ -179,7 +176,7 @@ tic();
 toc();
 
     // Plots
-/*
+//
     QwtPlot plotAccelerations;
     plotAccelerations.setTitle("Accelerations");
     plotAccelerations.setCanvasBackground(Qt::white);
@@ -213,6 +210,14 @@ toc();
     plotAngularRates.insertLegend(new QwtLegend());
     plotAngularRates.setAxisTitle(QwtPlot::yLeft,"Angular Rate (°/s)");
     plotAngularRates.setAxisTitle(QwtPlot::xBottom,"Timestamp (s)");
+    QwtPlotMarker *m1=new QwtPlotMarker();
+        m1->setLineStyle(QwtPlotMarker::HLine);
+        m1->setValue(0,0.5);
+        m1->attach(&plotAngularRates);
+    QwtPlotMarker *m2=new QwtPlotMarker();
+        m2->setLineStyle(QwtPlotMarker::HLine);
+        m2->setValue(0,-0.5);
+        m2->attach(&plotAngularRates);
     QwtPlotCurve *curveAngX = new QwtPlotCurve();
         curveAngX->setTitle("X");
         curveAngX->setPen(Qt::blue,2);
@@ -302,8 +307,8 @@ toc();
         curveYaw->attach(&plotYaw);
     plotYaw.resize(600,400);
     plotYaw.show();
-*/
-/*
+//
+//
     QwtPlot plotHrelations;
     plotHrelations.setTitle("Horizontales relations");
     plotHrelations.setCanvasBackground(Qt::white);
@@ -387,8 +392,8 @@ toc();
         curveFrameVc->attach(&plotVrelations);
     plotVrelations.resize(600,400);
     plotVrelations.show();
-*/
-/*
+//
+//
     QwtPlot plotTranslationsX;
     plotTranslationsX.setTitle("Translations horizontales in frame plan");
     plotTranslationsX.setCanvasBackground(Qt::white);
@@ -450,8 +455,8 @@ toc();
         curveUTranslationY->attach(&plotTranslationsY);
     plotTranslationsY.resize(600,400);
     plotTranslationsY.show();
-*/
-/*
+//
+//
     QwtPlot plotCTranslationsX;
     plotCTranslationsX.setTitle("Corrected Translations horizontales in frame plan");
     plotCTranslationsX.setCanvasBackground(Qt::white);
@@ -513,7 +518,7 @@ toc();
         curveUCTranslationY->attach(&plotCTranslationsY);
     plotCTranslationsY.resize(600,400);
     plotCTranslationsY.show();
-*/
+//
 
 //*** Second round
 
@@ -522,7 +527,7 @@ tic();
     vector<Trajectory> trajectories2;
     int nbFrames2;
 
-    VideoMotionEstimation::calcTrajectoriesKLT(trajectories2,nbFrames2,"/home/maelle/Desktop/Samples/Dynamic/"+videoName+"/"+videoName+"_stable_F.avi",2000,500);
+    VideoMotionEstimation::calcTrajectoriesKLT(trajectories2,nbFrames2,"/home/maelle/Desktop/Samples/Static/"+videoName+"/"+videoName+"_stable_F.avi",2000,500);
 toc();
 
 tic();
@@ -596,7 +601,7 @@ tic();
 toc();
 
     // Plots
-/*
+//
     QwtPlot plotAffinesA;
     plotAffinesA.setTitle("Affine transformation parameter a");
     plotAffinesA.setCanvasBackground(Qt::white);
@@ -844,8 +849,8 @@ toc();
         curveUAffinesRatio->attach(&plotAffinesRatio);
     plotAffinesRatio.resize(600,400);
     plotAffinesRatio.show();
-*/
-/*
+//
+//
     QwtPlot plotCAffinesA;
     plotCAffinesA.setTitle("Corrected Affine transformation parameter a");
     plotCAffinesA.setCanvasBackground(Qt::white);
@@ -1093,7 +1098,7 @@ toc();
         curveUCAffinesRatio->attach(&plotCAffinesRatio);
     plotCAffinesRatio.resize(600,400);
     plotCAffinesRatio.show();
-*/
+//
 
     return a.exec();
 }

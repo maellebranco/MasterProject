@@ -124,10 +124,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    string videoName = "yawJitter";
-
+    string videoName = "static";
+//
 //*** Pixel variation error
-/*
+
 //  original video pixel variation (RMSE) reading
 tic();
     vector<double> RMSEO,framesO;
@@ -259,8 +259,9 @@ toc();
     plotRMSE2.resize(600,400);
     plotRMSE2.show();
 
+//
 //*** Flow
-*/
+
 //  original video motion flows reading
 tic();
     vector<double> xflowsO,yflowsO,framesFlowO;
